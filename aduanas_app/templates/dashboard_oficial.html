@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="panel slide-up">
+    <div class="panel-header">
+        <h2>Panel de Control: 
+            {% if current_user.rol == 'pdi' %}PDI (Migraciones Chile)
+            {% elif current_user.rol == 'policia_arg' %}Policía Argentina (Migraciones)
+            {% elif current_user.rol == 'aduana' %}Aduanas (Control de Bienes)
+            {% endif %}
+        </h2>
+    </div>
+
+    <div class="table-container">
+        <table class="modern-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Pasajero</th>
+                    <th>Documento</th>
+                    <th>Ruta</th>
+                    <th>Patente</th>
+                    {% if current_user.rol == 'aduana' %}
+                        <th>Bienes Declarados</th>
+                    {% endif %}
+                    <th>Estado Actual</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in tramites %}
+                <tr>
+                    <td>#{{ t.id }}</td>
+                    <td><strong>{{ t.nombre_pasajero }}</strong></td>
+                    <td>{{ t.documento }}</td>
+                    <td>{{ t.origen }} ➔ {{ t.destino }}</td>
+                    <td><span class="plate">{{ t.patente }}</span></td>
+                    {% if current_user.rol == 'aduana' %}
+                        <td class="bienes-cell">{{ t.bienes_declarados or 'Sin declarar' }}</td>
+                    {% endif %}
+                    
+                    <td>
+                        {% if current_user.rol == 'pdi' %}
+                            <span class="status-badge {{ t.estado_pdi|lower }}">{{ t.estado_pdi }}</span>
+                        {% elif current_user.rol == 'policia_arg' %}
+                            <span class="status-badge {{ t.estado_policia_arg|lower }}">{{ t.estado_policia_arg }}</span>
+                        {% elif current_user.rol == 'aduana' %}
+                            <span class="status-badge {{ t.estado_aduana|lower }}">{{ t.estado_aduana }}</span>
+                        {% endif %}
+                    </td>
+                    
+                    <td class="actions-cell">
+                        <form action="{{ url_for('main.actualizar_tramite', id=t.id, estado='Aprobado') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn-sm btn-success" title="Aprobar" style="cursor:pointer; border:none;">✓ Aprobar</button>
+                        </form>
+                        <form action="{{ url_for('main.actualizar_tramite', id=t.id, estado='Rechazado') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn-sm btn-danger" title="Rechazar" style="cursor:pointer; border:none;">✗ Rechazar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="10" class="empty-state">No hay trámites pendientes de revisión.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Pagination Controls -->
+        <div class="pagination" style="margin-top: 1rem; text-align: center;">
+            {% if current_user.rol == 'pdi' %}
+                {% set endpoint = 'main.dashboard_pdi' %}
+            {% elif current_user.rol == 'policia_arg' %}
+                {% set endpoint = 'main.dashboard_policia_arg' %}
+            {% elif current_user.rol == 'aduana' %}
+                {% set endpoint = 'main.dashboard_aduana' %}
+            {% endif %}
+            
+            {% if pagination.has_prev %}
+                <a href="{{ url_for(endpoint, page=pagination.prev_num) }}" class="btn-sm">Anterior</a>
+            {% endif %}
+            <span>Página {{ pagination.page }} de {{ pagination.pages }}</span>
+            {% if pagination.has_next %}
+                <a href="{{ url_for(endpoint, page=pagination.next_num) }}" class="btn-sm">Siguiente</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

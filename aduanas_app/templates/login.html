@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card fade-in" style="max-width: 450px;">
+        <div class="login-header">
+            <h2>Iniciar Sesión</h2>
+            <p>Ingrese sus credenciales de acceso</p>
+        </div>
+        
+        <form action="{{ url_for('main.login') }}" method="POST" class="form-modern">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="form-group" style="text-align: left;">
+                <label for="rut">RUT del Usuario</label>
+                <input type="text" id="rut" name="rut" required placeholder="Ej: pasajero, aduana, pdi..." autofocus>
+            </div>
+            
+            <div class="form-group" style="text-align: left;">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" required placeholder="••••••••">
+            </div>
+            
+            <button type="submit" class="btn-primary btn-full" style="margin-top: 1rem;">Ingresar al Sistema</button>
+        </form>
+        
+        <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text-muted);">
+            <p><strong>Usuarios de prueba:</strong></p>
+            <p>RUTs: <code>pasajero</code>, <code>aduana</code>, <code>pdi</code>, <code>policia</code></p>
+            <p>Clave universal: <code>123</code></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

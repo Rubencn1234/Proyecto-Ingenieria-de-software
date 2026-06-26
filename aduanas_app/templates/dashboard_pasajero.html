@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <!-- Formulario para nuevo trámite -->
+    <div class="panel slide-up">
+        <h2>Declaración de Viaje</h2>
+        <form action="{{ url_for('main.nuevo_tramite') }}" method="POST" class="form-modern">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <div class="form-group">
+                <label for="nombre">Nombre Completo</label>
+                <input type="text" id="nombre" name="nombre" required placeholder="Ej: Juan Pérez">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="documento">RUT / DNI / Pasaporte</label>
+                    <input type="text" id="documento" name="documento" required>
+                </div>
+                <div class="form-group">
+                    <label for="patente">Patente Vehículo</label>
+                    <input type="text" id="patente" name="patente" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="origen">Origen</label>
+                    <select id="origen" name="origen" required>
+                        <option value="Chile">Chile</option>
+                        <option value="Argentina">Argentina</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="destino">Destino</label>
+                    <select id="destino" name="destino" required>
+                        <option value="Argentina">Argentina</option>
+                        <option value="Chile">Chile</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="bienes">Bienes a Declarar (SAG/Aduana)</label>
+                <textarea id="bienes" name="bienes" rows="3"
+                    placeholder="Electrónicos, alimentos, divisas, etc..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary btn-full">Generar Declaración</button>
+        </form>
+    </div>
+
+    <!-- Estado de trámites -->
+    <div class="panel slide-up delay-1">
+        <h2>Trámites Recientes</h2>
+        {% if tramites %}
+        <div class="tramites-list">
+            {% for t in tramites %}
+            <div class="tramite-card">
+                <div class="tramite-header">
+                    <h4>Trámite #{{ t.id }}</h4>
+                    <span class="date">{{ t.origen }} ➔ {{ t.destino }}</span>
+                </div>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <span>PDI</span>
+                        <span class="status-badge {{ t.estado_pdi|lower }}">{{ t.estado_pdi }}</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Policía Arg.</span>
+                        <span class="status-badge {{ t.estado_policia_arg|lower }}">{{ t.estado_policia_arg }}</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Aduanas</span>
+                        <span class="status-badge {{ t.estado_aduana|lower }}">{{ t.estado_aduana }}</span>
+                    </div>
+                </div>
+
+                {% if t.estado_pdi == 'Aprobado' and t.estado_policia_arg == 'Aprobado' and t.estado_aduana ==
+                'Aprobado' %}
+                <div class="alert success">¡Autorizado para cruzar! ✅</div>
+                {% elif t.estado_pdi == 'Rechazado' or t.estado_policia_arg == 'Rechazado' or t.estado_aduana ==
+                'Rechazado' %}
+                <div class="alert error">Paso Fronterizo Denegado ❌</div>
+                {% else %}
+                <div class="alert warning">Pendiente de revisión ⏳</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination" style="margin-top: 1rem; text-align: center;">
+            {% if pagination.has_prev %}
+            <a href="{{ url_for('main.dashboard_pasajero', page=pagination.prev_num) }}" class="btn-sm">Anterior</a>
+            {% endif %}
+            <span>Página {{ pagination.page }} de {{ pagination.pages }}</span>
+            {% if pagination.has_next %}
+            <a href="{{ url_for('main.dashboard_pasajero', page=pagination.next_num) }}" class="btn-sm">Siguiente</a>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No tienes trámites activos.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
