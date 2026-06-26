@@ -93,7 +93,7 @@ def nuevo_tramite():
     destino = request.form.get('destino')
     bienes = request.form.get('bienes')
     
-    # Basic server side validation
+
     if not all([nombre, documento, patente, origen, destino]):
         flash('Por favor complete todos los campos obligatorios.', 'error')
         return redirect(url_for('main.dashboard_pasajero'))

@@ -11,17 +11,17 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # Inicializar extensiones
+
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'main.login'
     login_manager.login_message = "Por favor inicie sesión para acceder a esta página."
     login_manager.login_message_category = "warning"
     
-    # CSRF Protection global
+
     csrf = CSRFProtect(app)
 
-    # Configurar logs
+
     if not os.path.exists('logs'):
         os.mkdir('logs')
     file_handler = RotatingFileHandler('logs/aduanas.log', maxBytes=10240, backupCount=10)
@@ -33,7 +33,7 @@ def create_app(config_class=Config):
     app.logger.setLevel(logging.INFO)
     app.logger.info('Inicio de aplicación Aduanas')
 
-    # Registrar blueprints
+
     from routes import main_bp
     from errors import errors_bp
     
@@ -44,10 +44,10 @@ def create_app(config_class=Config):
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    # Inicialización de BD
+
     with app.app_context():
         db.create_all()
-        # Seed users if empty
+
         if User.query.count() == 0:
             from werkzeug.security import generate_password_hash
             users = [

@@ -1,7 +1,4 @@
-// Micro-interactions and UX enhancements
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Auto-dismiss flash messages after 5 seconds
     const flashMessages = document.querySelectorAll('.flash');
     if (flashMessages.length > 0) {
         setTimeout(() => {
@@ -13,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     }
 
-    // Interactive hover effects for cards
+
     const cards = document.querySelectorAll('.role-card, .tramite-card');
     cards.forEach(card => {
         card.addEventListener('mouseenter', () => {
@@ -25,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Form submission animation (button state)
+
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
         form.addEventListener('submit', (e) => {
@@ -35,9 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.innerHTML = '⏳ Procesando...';
                 btn.style.opacity = '0.8';
                 btn.style.pointerEvents = 'none';
-                
-                // Note: we let the form submit normally, this is just visual feedback
-                // until the page reloads.
+
+
             }
         });
     });
