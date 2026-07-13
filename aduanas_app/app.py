@@ -1,6 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+import sys
 from flask import Flask
 from config import Config
 from extensions import db, login_manager
@@ -8,7 +9,15 @@ from models import User
 from flask_wtf.csrf import CSRFProtect
 
 def create_app(config_class=Config):
-    app = Flask(__name__)
+    if getattr(sys, 'frozen', False):
+        template_folder = os.path.join(sys._MEIPASS, 'templates')
+        static_folder = os.path.join(sys._MEIPASS, 'static')
+        app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
+        base_dir = os.path.dirname(sys.executable)
+    else:
+        app = Flask(__name__)
+        base_dir = os.path.abspath(os.path.dirname(__file__))
+        
     app.config.from_object(config_class)
 
 
@@ -22,9 +31,11 @@ def create_app(config_class=Config):
     csrf = CSRFProtect(app)
 
 
-    if not os.path.exists('logs'):
-        os.mkdir('logs')
-    file_handler = RotatingFileHandler('logs/aduanas.log', maxBytes=10240, backupCount=10)
+    logs_dir = os.path.join(base_dir, 'logs')
+    if not os.path.exists(logs_dir):
+        os.mkdir(logs_dir)
+    log_file = os.path.join(logs_dir, 'aduanas.log')
+    file_handler = RotatingFileHandler(log_file, maxBytes=10240, backupCount=10)
     file_handler.setFormatter(logging.Formatter(
         '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
     ))
