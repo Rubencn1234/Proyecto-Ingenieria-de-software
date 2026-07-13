@@ -42,11 +42,21 @@ def create_app(config_class=Config):
 
     @login_manager.user_loader
     def load_user(user_id):
-        return User.query.get(int(user_id))
+        return db.session.get(User, int(user_id))
 
 
     with app.app_context():
         db.create_all()
+
+        # Migración automática: agregar columna user_id si no existe
+        from sqlalchemy import inspect, text
+        inspector = inspect(db.engine)
+        columns = [col['name'] for col in inspector.get_columns('tramite')]
+        if 'user_id' not in columns:
+            with db.engine.connect() as conn:
+                conn.execute(text('ALTER TABLE tramite ADD COLUMN user_id INTEGER REFERENCES user(id)'))
+                conn.commit()
+            app.logger.info('Migración aplicada: columna user_id agregada a tramite')
 
         if User.query.count() == 0:
             from werkzeug.security import generate_password_hash

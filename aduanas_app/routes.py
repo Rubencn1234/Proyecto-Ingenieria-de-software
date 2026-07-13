@@ -126,7 +126,7 @@ def actualizar_tramite(id, estado):
         return redirect(url_for('main.login'))
         
     try:
-        tramite = Tramite.query.get_or_404(id)
+        tramite = db.get_or_404(Tramite, id)
         if current_user.rol == 'pdi':
             tramite.estado_pdi = estado
         elif current_user.rol == 'policia_arg':
